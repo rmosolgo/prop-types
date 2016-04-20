@@ -16,8 +16,9 @@ end
 task :deploy do
   `rake compile_js`
   `git checkout gh-pages`
-  `cp index.html ./`
-  `cp build.js ./`
-  `git ct -m "rebuild"`
+  `cp web/index.html ./`
+  `cp web/build.js ./`
+  `git ct -am "rebuild"`
   `git push origin gh-pages`
+  `git checkout master`
 end
