@@ -2,7 +2,7 @@
 
 Generate PropTypes from JSON ([try it online](http://rmosolgo.github.io/prop-types)):
 
-![image](https://cloud.githubusercontent.com/assets/2231765/14684472/165b9e30-06fe-11e6-85e1-29ec533b4e43.png)
+![image](https://cloud.githubusercontent.com/assets/2231765/14688299/f31173f2-070f-11e6-94cd-0f864f8ec528.png)
 
 With some limitations:
 
@@ -10,7 +10,7 @@ With some limitations:
 - Assumes `null` is `any`
 - Assumes any value `isRequired`
 - Only checks first value of array (assumes all other values are the same type)
-
+- Assumes that objects with the same keys are meant to be the same shape
 
 ### Development
 

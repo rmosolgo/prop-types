@@ -1,9 +1,8 @@
 module PropTypes
   class CachedShape
     attr_reader :name, :prop_type, :uses_count, :id
-    def initialize(name, prop_type, example_hash)
+    def initialize(name, prop_type, example_hash, semicolon:)
       @id = "shapeId#{self.class.next_id}"
-
       if name.nil?
         @name = example_hash.keys.sort.join("") + "Shape"
         @unnamed = true
@@ -12,6 +11,7 @@ module PropTypes
         @unnamed = false
       end
 
+      @semicolon = semicolon
       @prop_type = prop_type
       @uses_count = 0
     end
@@ -29,7 +29,7 @@ module PropTypes
 
     def to_var
       dedented_prop_type = PropTypes::Indent.reindent_object(prop_type, 0)
-      "var #{name} = #{dedented_prop_type}"
+      "var #{name} = #{dedented_prop_type}#@semicolon"
     end
 
     class << self

@@ -1,7 +1,14 @@
 module PropTypes
   class Generator
-    def initialize(example_props)
+    def initialize(example_props, function_wrapper: false, destructure: false, semicolons: false)
       @example_props = example_props
+      @function_wrapper = function_wrapper
+      @destructure = destructure
+      if semicolons
+        @semicolon = ";"
+      else
+        @semicolon = ""
+      end
     end
 
     def to_js
@@ -10,14 +17,18 @@ module PropTypes
 
     private
 
-    ANY_PROP_TYPE = "React.PropTypes.any"
-    BOOL_PROP_TYPE = "React.PropTypes.bool.isRequired"
-    NUMBER_PROP_TYPE = "React.PropTypes.number.isRequired"
-    STRING_PROP_TYPE = "React.PropTypes.string.isRequired"
+    ANY_PROP_TYPE =     "React.PropTypes.any"
+    BOOL_PROP_TYPE =    "React.PropTypes.bool.isRequired"
+    NUMBER_PROP_TYPE =  "React.PropTypes.number.isRequired"
+    STRING_PROP_TYPE =  "React.PropTypes.string.isRequired"
+    PROP_TYPES = [ANY_PROP_TYPE, BOOL_PROP_TYPE, NUMBER_PROP_TYPE, STRING_PROP_TYPE]
 
     def generate_code(props)
       object_cache = {}
-      base_shape = generate_prop_type(nil, props, 1, object_cache)
+      base_shape = generate_prop_type(nil, props, 1, object_cache) + @semicolon
+      if @function_wrapper
+        base_shape = "return #{base_shape}"
+      end
       object_cache.values.reverse.each do |cached_shape|
         if cached_shape.uses_count == 1
           base_shape = base_shape.sub(cached_shape.id, cached_shape.prop_type)
@@ -26,6 +37,19 @@ module PropTypes
           base_shape = "#{cached_shape.to_var}\n\n#{base_shape}"
         end
       end
+
+      if @function_wrapper
+        base_shape = PropTypes::Indent.reindent_object("\n#{base_shape}", 1)
+        base_shape = "(function() {#{base_shape}\n})()#@semicolon"
+      end
+
+      if @destructure
+        required_fns = base_shape.scan(/React\.PropTypes\.([A-Za-z]+)/).flatten.uniq.sort
+        base_shape = base_shape.gsub("React.PropTypes.", "")
+        header = "var {#{required_fns.join(", ")}} = React.PropTypes#@semicolon"
+        base_shape = "#{header}\n\n#{base_shape}"
+      end
+
       base_shape
     end
 
@@ -50,7 +74,7 @@ module PropTypes
         prop_type = hash_to_prop_type(props, current_depth, object_cache)
         cache_key = props.keys.sort.join(",")
         cached_shape = object_cache[cache_key] ||= begin
-          PropTypes::CachedShape.new(nil, prop_type, props)
+          PropTypes::CachedShape.new(nil, prop_type, props, semicolon: @semicolon)
         end
         key_name && cached_shape.offer_name("#{key_name}Shape")
         cached_shape.increment
