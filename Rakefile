@@ -16,10 +16,12 @@ end
 task :deploy do
   `rake compile_js`
   `git checkout gh-pages`
-  `cp index.html ./`
-  `cp build.js ./`
+  `git checkout master web/index.html`
+  `cp web/index.html ./`
+  `cp web/build.js ./`
   `git add index.html build.js`
   `git commit -m "rebuild"`
   `git push origin gh-pages`
+  `rm index.html build.js`
   `git checkout master`
 end
