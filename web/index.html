@@ -1,55 +1,102 @@
 <html>
   <head>
+    <title>Generate PropTypes from JSON</title>
     <script type="text/javascript" src="build.js"></script>
     <style>
-      .header {
-        margin: 20px;
+      body {
+        padding: 10px;
       }
+
 
       .container {
         display: flex;
+        flex-wrap: wrap;
+        width: 100%;
       }
+
       .half-block {
-        flex: 0 1 50%;
+        flex: 0 0 50%;
+      }
+
+      .whole-block {
+        flex: 0 0 100%;
       }
 
       .code-input {
         font-family: monospace;
-        margin: 20px;
-        width: calc(100% - 40px);
+        width: 90%;
+        font-size: 14px;
       }
-
     </style>
   </head>
   <body>
-    <h1 class="header">Prop Type Generator</h1>
     <div class="container">
+      <h1 class="whole-block">Prop Type Generator</h1>
+      <p class="whole-block">
+        <label>
+          <input type="checkbox" id="destructure" onchange="convertJSONToProps()"> Destructure from React.PropTypes
+        </label>
+        <label>
+          <input type="checkbox" id="semicolons" onchange="convertJSONToProps()"> Use semicolons
+        </label>
+        <label>
+          <input type="checkbox" id="function_wrapper" onchange="convertJSONToProps()"> Use a function wrapper
+        </label>
+      </p>
       <div class="half-block">
-        <textarea id="input" onKeyUp="convertJSONToProps(this.value)" class="code-input" rows="30" placeholder="Paste some JSON here"></textarea>
+        <textarea id="input" onKeyUp="convertJSONToProps()" class="code-input" rows="30" placeholder="Paste some JSON here"></textarea>
       </div>
       <div class="half-block">
         <textarea id="output" class="code-input" rows="30" placeholder="PropTypes will appear here" disabled="true"></textarea>
       </div>
+      <p class="whole-block">See the source <a href="https://github.com/rmosolgo/prop-types">on Github</a>.</p>
     </div>
 
     <script type="text/javascript">
-      function convertJSONToProps(json) {
-        var propTypesContent
+      function convertJSONToProps() {
+        var state = readState()
 
+        var propTypesContent
         try {
-          propTypesContent = Opal.PropTypes.$generate(json)
+          propTypesContent = Opal.PropTypes.$generate(
+            state.json, Opal.hash({
+              function_wrapper: state.function_wrapper,
+              destructure: state.destructure,
+              semicolons: state.semicolons,
+            })
+          )
         } catch (err) {
           propTypesContent = err.toString()
         }
-        window.location.hash = escape(json)
+
+        dumpState(state)
         document.getElementById("output").value = propTypesContent
       }
 
-      var initialJSON = unescape(window.location.hash).substr(1)
+      function readState() {
+        return {
+          json: document.getElementById("input").value,
+          function_wrapper: document.getElementById("function_wrapper").checked,
+          destructure: document.getElementById("destructure").checked,
+          semicolons: document.getElementById("semicolons").checked,
+        }
+      }
 
-      if (initialJSON) {
-        document.getElementById("input").value = initialJSON
-        convertJSONToProps(initialJSON)
+      function dumpState(state) {
+        window.location.hash = escape(JSON.stringify(state))
+      }
+
+      function loadState(state) {
+        document.getElementById("input").value = state.json
+        document.getElementById("function_wrapper").checked = state.function_wrapper
+        document.getElementById("destructure").checked = state.destructure
+        document.getElementById("semicolons").checked = state.semicolons
+      }
+
+      var initialState = unescape(window.location.hash).substr(1)
+      if (initialState) {
+        loadState(JSON.parse(unescape(initialState)))
+        convertJSONToProps()
       }
     </script>
   </body>
