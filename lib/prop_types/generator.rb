@@ -50,7 +50,7 @@ module PropTypes
         prop_type = hash_to_prop_type(props, current_depth, object_cache)
         cache_key = props.keys.sort.join(",")
         cached_shape = object_cache[cache_key] ||= begin
-          PropTypes::CachedShape.new(nil, prop_type)
+          PropTypes::CachedShape.new(nil, prop_type, props)
         end
         key_name && cached_shape.offer_name("#{key_name}Shape")
         cached_shape.increment

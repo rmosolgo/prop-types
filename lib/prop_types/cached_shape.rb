@@ -1,11 +1,11 @@
 module PropTypes
   class CachedShape
     attr_reader :name, :prop_type, :uses_count, :id
-    def initialize(name, prop_type)
+    def initialize(name, prop_type, example_hash)
       @id = "shapeId#{self.class.next_id}"
 
       if name.nil?
-        @name = "unnamedShape#{@id}"
+        @name = example_hash.keys.sort.join("") + "Shape"
         @unnamed = true
       else
         @name = name

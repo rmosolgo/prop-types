@@ -69,4 +69,29 @@ React.PropTypes.shape({
 
     assert_equal expected, generate_prop_types(example_hash)
   end
+
+  def test_it_uses_keys_for_unnamed_hashes
+    example_hash = {
+      grandparents: [
+        {name: "George", age: 72},
+        {name: "Lucille", age: 68},
+      ],
+      members: [
+        {name: "Michael", age: 45},
+        {name: "George Michael", age: 17},
+      ]
+    }
+
+    expected = %|var agenameShape = React.PropTypes.shape({
+  age: React.PropTypes.number.isRequired,
+  name: React.PropTypes.string.isRequired
+})
+
+React.PropTypes.shape({
+  grandparents: React.PropTypes.arrayOf(agenameShape.isRequired).isRequired,
+  members: React.PropTypes.arrayOf(agenameShape.isRequired).isRequired
+}).isRequired|
+
+    assert_equal expected, generate_prop_types(example_hash)
+  end
 end
