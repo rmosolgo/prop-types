@@ -10,3 +10,14 @@ With some limitations:
 - Assumes `null` is `any`
 - Assumes any value `isRequired`
 - Only checks first value of array (assumes all other values are the same type)
+
+
+### Development
+
+```
+cd web && python -m SimpleHTTPServer
+```
+
+```
+rake deploy
+```

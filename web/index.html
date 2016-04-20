@@ -20,6 +20,18 @@
       }
 
     </style>
+  </head>
+  <body>
+    <h1 class="header">Prop Type Generator</h1>
+    <div class="container">
+      <div class="half-block">
+        <textarea id="input" onKeyUp="convertJSONToProps(this.value)" class="code-input" rows="30" placeholder="Paste some JSON here"></textarea>
+      </div>
+      <div class="half-block">
+        <textarea id="output" class="code-input" rows="30" placeholder="PropTypes will appear here" disabled="true"></textarea>
+      </div>
+    </div>
+
     <script type="text/javascript">
       function convertJSONToProps(json) {
         var propTypesContent
@@ -29,19 +41,16 @@
         } catch (err) {
           propTypesContent = err.toString()
         }
+        window.location.hash = escape(json)
         document.getElementById("output").value = propTypesContent
       }
+
+      var initialJSON = unescape(window.location.hash).substr(1)
+
+      if (initialJSON) {
+        document.getElementById("input").value = initialJSON
+        convertJSONToProps(initialJSON)
+      }
     </script>
-  </head>
-  <body>
-    <h1 class="header">Prop Type Generator</h1>
-    <div class="container">
-      <div class="half-block">
-        <textarea onKeyUp="convertJSONToProps(this.value)" class="code-input" rows="30" placeholder="Paste some JSON here"></textarea>
-      </div>
-      <div class="half-block">
-        <textarea id="output" class="code-input" rows="30" placeholder="PropTypes will appear here" disabled="true"></textarea>
-      </div>
-    </div>
   </body>
 </html>
