@@ -14,14 +14,14 @@ task :compile_js do
 end
 
 task :deploy do
-  `rake compile_js`
-  `git checkout gh-pages`
-  `git checkout master web/index.html`
-  `cp web/index.html ./`
-  `cp web/build.js ./`
-  `git add index.html build.js`
-  `git commit -m "rebuild"`
-  `git push origin gh-pages`
-  `rm index.html build.js`
-  `git checkout master`
+  sh("rake compile_js")
+  sh("git checkout gh-pages")
+  sh("git checkout master web/index.html")
+  sh("cp web/index.html ./")
+  sh("cp web/build.js ./")
+  sh("git add index.html build.js")
+  sh("git commit -m rebuild")
+  sh("git push origin gh-pages")
+  sh("rm index.html build.js")
+  sh("git checkout master")
 end
