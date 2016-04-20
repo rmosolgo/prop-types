@@ -19417,7 +19417,7 @@ Opal.modules["prop_types/cached_shape"] = function(Opal) {
   }
   var self = Opal.top, $scope = Opal, nil = Opal.nil, $breaker = Opal.breaker, $slice = Opal.slice, $module = Opal.module, $klass = Opal.klass;
 
-  Opal.add_stubs(['$attr_reader', '$next_id', '$class', '$nil?', '$+', '$reindent_object', '$prop_type', '$name']);
+  Opal.add_stubs(['$attr_reader', '$next_id', '$class', '$nil?', '$+', '$join', '$sort', '$keys', '$reindent_object', '$prop_type', '$name']);
   return (function($base) {
     var $PropTypes, self = $PropTypes = $module($base, 'PropTypes');
 
@@ -19429,15 +19429,15 @@ Opal.modules["prop_types/cached_shape"] = function(Opal) {
 
       var def = self.$$proto, $scope = self.$$scope;
 
-      def.id = def.unnamed = def.uses_count = nil;
+      def.unnamed = def.uses_count = nil;
       self.$attr_reader("name", "prop_type", "uses_count", "id");
 
-      Opal.defn(self, '$initialize', function(name, prop_type) {
+      Opal.defn(self, '$initialize', function(name, prop_type, example_hash) {
         var $a, self = this;
 
         self.id = "shapeId" + (self.$class().$next_id());
         if ((($a = name['$nil?']()) !== nil && (!$a.$$is_boolean || $a == true))) {
-          self.name = "unnamedShape" + (self.id);
+          self.name = $rb_plus(example_hash.$keys().$sort().$join(""), "Shape");
           self.unnamed = true;
           } else {
           self.name = name;
@@ -19554,7 +19554,7 @@ if (cached_shape == null) cached_shape = nil;
 
         return (function() {$case = props;if ($scope.get('String')['$===']($case)) {return $scope.get('STRING_PROP_TYPE')}else if ($scope.get('NilClass')['$===']($case)) {return $scope.get('ANY_PROP_TYPE')}else if ($scope.get('Numeric')['$===']($case)) {return $scope.get('NUMBER_PROP_TYPE')}else if ($scope.get('TrueClass')['$===']($case) || $scope.get('FalseClass')['$===']($case)) {return $scope.get('BOOL_PROP_TYPE')}else if ($scope.get('Array')['$===']($case)) {return $rb_plus($rb_plus("React.PropTypes.arrayOf(", self.$generate_prop_type(nil, props['$[]'](0), current_depth, object_cache)), ").isRequired")}else if ($scope.get('Hash')['$===']($case)) {prop_type = self.$hash_to_prop_type(props, current_depth, object_cache);
         cache_key = props.$keys().$sort().$join(",");
-        cached_shape = ($a = cache_key, $b = object_cache, ((($c = $b['$[]']($a)) !== false && $c !== nil) ? $c : $b['$[]=']($a, (($scope.get('PropTypes')).$$scope.get('CachedShape')).$new(nil, prop_type))));
+        cached_shape = ($a = cache_key, $b = object_cache, ((($c = $b['$[]']($a)) !== false && $c !== nil) ? $c : $b['$[]=']($a, (($scope.get('PropTypes')).$$scope.get('CachedShape')).$new(nil, prop_type, props))));
         (($a = key_name !== false && key_name !== nil) ? cached_shape.$offer_name("" + (key_name) + "Shape") : key_name);
         cached_shape.$increment();
         return $rb_plus(cached_shape.$id(), ".isRequired");}else {return self.$raise("Can't generate prop for " + (props) + " (" + (props.$class()) + ")")}})();
