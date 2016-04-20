@@ -18,6 +18,8 @@ task :deploy do
   `git checkout gh-pages`
   `cp index.html ./`
   `cp build.js ./`
-  `git ct -m "rebuild"`
+  `git add index.html build.js`
+  `git commit -m "rebuild"`
   `git push origin gh-pages`
+  `git checkout master`
 end
