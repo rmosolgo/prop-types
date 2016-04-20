@@ -2,6 +2,10 @@
   <head>
     <script type="text/javascript" src="/build.js"></script>
     <style>
+      .header {
+        margin: 20px;
+      }
+
       .container {
         display: flex;
       }
@@ -30,7 +34,7 @@
     </script>
   </head>
   <body>
-    <h1>Prop Type Generator</h1>
+    <h1 class="header">Prop Type Generator</h1>
     <div class="container">
       <div class="half-block">
         <textarea onKeyUp="convertJSONToProps(this.value)" class="code-input" rows="30" placeholder="Paste some JSON here"></textarea>

@@ -12,3 +12,12 @@ task :compile_js do
   Opal.append_path './web'
   File.binwrite "./web/build.js", Opal::Builder.build("application").to_s
 end
+
+task :deploy do
+  `rake compile_js`
+  `git checkout gh-pages`
+  `cp index.html ./`
+  `cp build.js ./`
+  `git ct -m "rebuild"`
+  `git push origin gh-pages`
+end
