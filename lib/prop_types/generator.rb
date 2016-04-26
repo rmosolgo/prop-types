@@ -29,22 +29,16 @@ module PropTypes
     BOOL_PROP_TYPE =    "React.PropTypes.bool.isRequired"
     NUMBER_PROP_TYPE =  "React.PropTypes.number.isRequired"
     STRING_PROP_TYPE =  "React.PropTypes.string.isRequired"
-    PROP_TYPES = [ANY_PROP_TYPE, BOOL_PROP_TYPE, NUMBER_PROP_TYPE, STRING_PROP_TYPE]
 
     def generate_code(props)
-      object_cache = {}
+      object_cache = PropTypes::ShapeCache.new
       base_shape = generate_prop_type(nil, props, 1, object_cache) + @semicolon
+
       if @function_wrapper
         base_shape = "return #{base_shape}"
       end
-      object_cache.values.reverse.each do |cached_shape|
-        if cached_shape.uses_count == 1
-          base_shape = base_shape.sub(cached_shape.id, cached_shape.prop_type)
-        else
-          base_shape = base_shape.gsub(cached_shape.id, cached_shape.name)
-          base_shape = "#{cached_shape.to_var}\n\n#{base_shape}"
-        end
-      end
+
+      base_shape = object_cache.apply_shapes(base_shape)
 
       if @function_wrapper
         base_shape = PropTypes::Indent.reindent_object("\n#{base_shape}", 1)
@@ -52,10 +46,9 @@ module PropTypes
       end
 
       if @destructure
-        required_fns = base_shape.scan(/React\.PropTypes\.([A-Za-z]+)/).flatten.uniq.sort
-        base_shape = base_shape.gsub("React.PropTypes.", "")
-        header = "var {#{required_fns.join(", ")}} = React.PropTypes#@semicolon"
-        base_shape = "#{header}\n\n#{base_shape}"
+        destructure_header = Destructure.create_header(base_shape, @semicolon)
+        base_shape = Destructure.strip_globals(base_shape)
+        base_shape = "#{destructure_header}\n\n#{base_shape}"
       end
 
       base_shape
@@ -79,9 +72,8 @@ module PropTypes
         # this is wrong - it should do `shape()` if it's not a shape-name
         "React.PropTypes.arrayOf(" + generate_prop_type(nil, props[0], current_depth, object_cache) + ").isRequired"
       when Hash
-        prop_type = hash_to_prop_type(props, current_depth, object_cache)
-        cache_key = props.keys.sort.join(",")
-        cached_shape = object_cache[cache_key] ||= begin
+        cached_shape = object_cache.cache(props) do
+          prop_type = hash_to_prop_type(props, current_depth, object_cache)
           PropTypes::CachedShape.new(nil, prop_type, props, semicolon: @semicolon)
         end
         key_name && cached_shape.offer_name("#{key_name}Shape")
