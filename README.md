@@ -2,7 +2,8 @@
 
 Generate PropTypes from JSON ([try it online](http://rmosolgo.github.io/prop-types)):
 
-![image](https://cloud.githubusercontent.com/assets/2231765/14688299/f31173f2-070f-11e6-94cd-0f864f8ec528.png)
+![image](https://cloud.githubusercontent.com/assets/2231765/14822766/e0f5eef4-0b9d-11e6-89bd-e50f9eb85363.png)
+
 
 With some limitations:
 

@@ -1,22 +1,22 @@
 module PropTypes
   class Generator
-    def initialize(example_props, function_wrapper: false, destructure: false, semicolons: false, alphabetize: true, dangle_commas: false)
+    def initialize(example_props,
+        function_wrapper: false,
+        destructure:      false,
+        semicolons:       false,
+        alphabetize:      true,
+        dangle_commas:    false,
+        required:         true
+      )
+
       @example_props = example_props
       @function_wrapper = function_wrapper
       @destructure = destructure
       @alphabetize = alphabetize
 
-      if dangle_commas
-        @dangling_comma = ","
-      else
-        @dangling_comma = ""
-      end
-
-      if semicolons
-        @semicolon = ";"
-      else
-        @semicolon = ""
-      end
+      @dangling_comma = dangle_commas ? "," : ""
+      @semicolon = semicolons ?         ";" : ""
+      @is_required = required ?         ".isRequired" : ""
     end
 
     def to_js
@@ -26,9 +26,9 @@ module PropTypes
     private
 
     ANY_PROP_TYPE =     "React.PropTypes.any"
-    BOOL_PROP_TYPE =    "React.PropTypes.bool.isRequired"
-    NUMBER_PROP_TYPE =  "React.PropTypes.number.isRequired"
-    STRING_PROP_TYPE =  "React.PropTypes.string.isRequired"
+    BOOL_PROP_TYPE =    "React.PropTypes.bool"
+    NUMBER_PROP_TYPE =  "React.PropTypes.number"
+    STRING_PROP_TYPE =  "React.PropTypes.string"
 
     def generate_code(props)
       object_cache = PropTypes::ShapeCache.new
@@ -61,16 +61,16 @@ module PropTypes
     def generate_prop_type(key_name, props, current_depth, object_cache)
       case props
       when String
-        STRING_PROP_TYPE
+        STRING_PROP_TYPE + @is_required
       when NilClass
         ANY_PROP_TYPE
       when Numeric
-        NUMBER_PROP_TYPE
+        NUMBER_PROP_TYPE + @is_required
       when TrueClass, FalseClass
-        BOOL_PROP_TYPE
+        BOOL_PROP_TYPE + @is_required
       when Array
         # this is wrong - it should do `shape()` if it's not a shape-name
-        "React.PropTypes.arrayOf(" + generate_prop_type(nil, props[0], current_depth, object_cache) + ").isRequired"
+        "React.PropTypes.arrayOf(" + generate_prop_type(nil, props[0], current_depth, object_cache) + ")" + @is_required
       when Hash
         cached_shape = object_cache.cache(props) do
           prop_type = hash_to_prop_type(props, current_depth, object_cache)
@@ -78,7 +78,7 @@ module PropTypes
         end
         key_name && cached_shape.offer_name("#{key_name}Shape")
         cached_shape.increment
-        cached_shape.id + ".isRequired"
+        cached_shape.id + @is_required
       else
         raise "Can't generate prop for #{props} (#{props.class})"
       end

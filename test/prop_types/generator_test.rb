@@ -245,4 +245,24 @@ React.PropTypes.shape({
 
     assert_equal expected, generate_prop_types(example_hash, dangle_commas: true)
   end
+
+  def test_it_doesnt_require_if_requested
+    example_hash = {
+      numberVal: 1,
+      boolVal: true,
+      stringVal: "str",
+      nullVal: nil,
+    }
+
+    expected = %|React.PropTypes.shape({
+  boolVal: React.PropTypes.bool,
+  nullVal: React.PropTypes.any,
+  numberVal: React.PropTypes.number,
+  stringVal: React.PropTypes.string
+})|
+
+
+    assert_equal expected, generate_prop_types(example_hash, required: false)
+  end
+
 end
