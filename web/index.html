@@ -4,6 +4,7 @@
     <script type="text/javascript" src="build.js"></script>
     <style>
       body {
+        margin: 0px;
         padding: 10px;
       }
 
@@ -14,37 +15,53 @@
         width: 100%;
       }
 
+      .container > * {
+        margin-bottom: 5px;
+      }
+
       .half-block {
         flex: 0 0 50%;
       }
 
+      .third-block {
+        flex: 0 0 33%;
+      }
       .whole-block {
         flex: 0 0 100%;
       }
 
       .code-input {
         font-family: monospace;
-        width: 90%;
+        width: calc(100% - 10px);
         font-size: 14px;
+      }
+
+      .heading {
+        margin-top: 5px;
       }
     </style>
   </head>
   <body>
     <div class="container">
-      <h1 class="whole-block">Prop Type Generator</h1>
-      <p class="whole-block">
-        <label>
-          <input type="checkbox" id="destructure" onchange="convertJSONToProps()"> Destructure from React.PropTypes
+      <h1 class="whole-block heading">Prop Type Generator</h1>
+        <label class="third-block">
+          <input type="checkbox" id="destructure" onchange="FormState.renderOutput()"> Destructure from React.PropTypes
+        </label class="third-block">
+        <label class="third-block">
+          <input type="checkbox" id="semicolons" onchange="FormState.renderOutput()"> Use semicolons
         </label>
-        <label>
-          <input type="checkbox" id="semicolons" onchange="convertJSONToProps()"> Use semicolons
+        <label class="third-block">
+          <input type="checkbox" id="function_wrapper" onchange="FormState.renderOutput()"> Use a function wrapper
         </label>
-        <label>
-          <input type="checkbox" id="function_wrapper" onchange="convertJSONToProps()"> Use a function wrapper
+        <label class="third-block">
+          <input type="checkbox" id="alphabetize" onchange="FormState.renderOutput()"> Alphabetize props
+        </label >
+        <label class="third-block">
+          <input type="checkbox" id="dangle_commas" onchange="FormState.renderOutput()"> Add dangling commas
         </label>
-      </p>
+        <button onclick="FormState.showDemo()" class="third-block">Demo</button>
       <div class="half-block">
-        <textarea id="input" onKeyUp="convertJSONToProps()" class="code-input" rows="30" placeholder="Paste some JSON here"></textarea>
+        <textarea id="input" onkeyup="FormState.renderOutput()" class="code-input" rows="30" placeholder="Paste some JSON here"></textarea>
       </div>
       <div class="half-block">
         <textarea id="output" class="code-input" rows="30" placeholder="PropTypes will appear here" disabled="true"></textarea>
@@ -53,51 +70,91 @@
     </div>
 
     <script type="text/javascript">
-      function convertJSONToProps() {
-        var state = readState()
+      var FormState = {
+        INITIAL_STATE: {
+          json: JSON.stringify({
+            name: "Bluth Family",
+            parents: [
+              {name: "George", age: 72},
+              {name: "Lucille", age: 68},
+            ],
+            children: [
+              {name: "Michael", age: 45},
+              {name: "GOB", age: 41},
+              {name: "Lindsay", age: 37},
+            ]
+          }, undefined, 2),
+          alphabetize: true,
+        },
 
-        var propTypesContent
-        try {
-          propTypesContent = Opal.PropTypes.$generate(
-            state.json, Opal.hash({
-              function_wrapper: state.function_wrapper,
-              destructure: state.destructure,
-              semicolons: state.semicolons,
-            })
-          )
-        } catch (err) {
-          propTypesContent = err.toString()
+        // Persist the state in the URL hash
+        saveState: function(state) {
+          window.location.hash = escape(JSON.stringify(state))
+        },
+
+        // Read form state from the DOM and create a JS object
+        readState: function() {
+          return {
+            json: document.getElementById("input").value,
+            function_wrapper: this._readStateSetting("function_wrapper"),
+            destructure: this._readStateSetting("destructure"),
+            semicolons: this._readStateSetting("semicolons"),
+            alphabetize: this._readStateSetting("alphabetize"),
+            dangle_commas: this._readStateSetting("dangle_commas"),
+          }
+        },
+
+        // Load the state object into the HTML form
+        renderState: function(state) {
+          document.getElementById("input").value = state.json
+          this._renderStateSetting(state, "function_wrapper")
+          this._renderStateSetting(state, "destructure")
+          this._renderStateSetting(state, "semicolons")
+          this._renderStateSetting(state, "alphabetize")
+          this._renderStateSetting(state, "dangle_commas")
+        },
+
+        // Fetch settingName from state and apply it to a same-named checkbox
+        _renderStateSetting: function(state, settingName)  {
+          document.getElementById(settingName).checked = state[settingName]
+        },
+
+        _readStateSetting: function(settingName) {
+          return document.getElementById(settingName).checked
+        },
+
+        // Render state from the URL hash _or_ the default state
+        initialize: function() {
+          var initialStateString = unescape(window.location.hash).substr(1)
+          var initialState = initialStateString ? JSON.parse(initialStateString) : this.INITIAL_STATE
+          this.renderState(initialState)
+          this.renderOutput()
+        },
+
+        renderOutput: function() {
+          var state = this.readState()
+
+          var propTypesContent
+          try {
+            propTypesContent = Opal.PropTypes.$generate(
+              state.json, Opal.hash({
+                function_wrapper: state.function_wrapper,
+                destructure: state.destructure,
+                semicolons: state.semicolons,
+                alphabetize: state.alphabetize,
+                dangle_commas: state.dangle_commas,
+              })
+            )
+            this.saveState(state)
+          } catch (err) {
+            propTypesContent = err.toString()
+          }
+
+          document.getElementById("output").value = propTypesContent
         }
-
-        dumpState(state)
-        document.getElementById("output").value = propTypesContent
       }
 
-      function readState() {
-        return {
-          json: document.getElementById("input").value,
-          function_wrapper: document.getElementById("function_wrapper").checked,
-          destructure: document.getElementById("destructure").checked,
-          semicolons: document.getElementById("semicolons").checked,
-        }
-      }
-
-      function dumpState(state) {
-        window.location.hash = escape(JSON.stringify(state))
-      }
-
-      function loadState(state) {
-        document.getElementById("input").value = state.json
-        document.getElementById("function_wrapper").checked = state.function_wrapper
-        document.getElementById("destructure").checked = state.destructure
-        document.getElementById("semicolons").checked = state.semicolons
-      }
-
-      var initialState = unescape(window.location.hash).substr(1)
-      if (initialState) {
-        loadState(JSON.parse(unescape(initialState)))
-        convertJSONToProps()
-      }
+      FormState.initialize()
     </script>
   </body>
 </html>
