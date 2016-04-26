@@ -19553,9 +19553,9 @@ Opal.modules["prop_types/generator"] = function(Opal) {
 
       var def = self.$$proto, $scope = self.$$scope;
 
-      def.to_js = def.example_props = def.semicolon = def.function_wrapper = def.destructure = def.dangling_comma = def.alphabetize = nil;
+      def.to_js = def.example_props = def.semicolon = def.function_wrapper = def.destructure = def.is_required = def.dangling_comma = def.alphabetize = nil;
       Opal.defn(self, '$initialize', function(example_props, $kwargs) {
-        var self = this, function_wrapper = nil, destructure = nil, semicolons = nil, alphabetize = nil, dangle_commas = nil;
+        var self = this, function_wrapper = nil, destructure = nil, semicolons = nil, alphabetize = nil, dangle_commas = nil, required = nil;
 
         if ($kwargs == null) {
           $kwargs = $hash2([], {});
@@ -19578,20 +19578,28 @@ Opal.modules["prop_types/generator"] = function(Opal) {
         if ((dangle_commas = $kwargs.$$smap['dangle_commas']) == null) {
           dangle_commas = false
         }
+        if ((required = $kwargs.$$smap['required']) == null) {
+          required = true
+        }
         self.example_props = example_props;
         self.function_wrapper = function_wrapper;
         self.destructure = destructure;
         self.alphabetize = alphabetize;
-        if (dangle_commas !== false && dangle_commas !== nil) {
-          self.dangling_comma = ","
+        self.dangling_comma = (function() {if (dangle_commas !== false && dangle_commas !== nil) {
+          return ","
           } else {
-          self.dangling_comma = ""
-        };
-        if (semicolons !== false && semicolons !== nil) {
-          return self.semicolon = ";"
+          return ""
+        }; return nil; })();
+        self.semicolon = (function() {if (semicolons !== false && semicolons !== nil) {
+          return ";"
           } else {
-          return self.semicolon = ""
-        };
+          return ""
+        }; return nil; })();
+        return self.is_required = (function() {if (required !== false && required !== nil) {
+          return ".isRequired"
+          } else {
+          return ""
+        }; return nil; })();
       });
 
       Opal.defn(self, '$to_js', function() {
@@ -19604,11 +19612,11 @@ Opal.modules["prop_types/generator"] = function(Opal) {
 
       Opal.cdecl($scope, 'ANY_PROP_TYPE', "React.PropTypes.any");
 
-      Opal.cdecl($scope, 'BOOL_PROP_TYPE', "React.PropTypes.bool.isRequired");
+      Opal.cdecl($scope, 'BOOL_PROP_TYPE', "React.PropTypes.bool");
 
-      Opal.cdecl($scope, 'NUMBER_PROP_TYPE', "React.PropTypes.number.isRequired");
+      Opal.cdecl($scope, 'NUMBER_PROP_TYPE', "React.PropTypes.number");
 
-      Opal.cdecl($scope, 'STRING_PROP_TYPE', "React.PropTypes.string.isRequired");
+      Opal.cdecl($scope, 'STRING_PROP_TYPE', "React.PropTypes.string");
 
       Opal.defn(self, '$generate_code', function(props) {
         var $a, self = this, object_cache = nil, base_shape = nil, destructure_header = nil;
@@ -19631,14 +19639,14 @@ Opal.modules["prop_types/generator"] = function(Opal) {
       Opal.defn(self, '$generate_prop_type', function(key_name, props, current_depth, object_cache) {
         var $a, $b, TMP_1, self = this, $case = nil, cached_shape = nil;
 
-        return (function() {$case = props;if ($scope.get('String')['$===']($case)) {return $scope.get('STRING_PROP_TYPE')}else if ($scope.get('NilClass')['$===']($case)) {return $scope.get('ANY_PROP_TYPE')}else if ($scope.get('Numeric')['$===']($case)) {return $scope.get('NUMBER_PROP_TYPE')}else if ($scope.get('TrueClass')['$===']($case) || $scope.get('FalseClass')['$===']($case)) {return $scope.get('BOOL_PROP_TYPE')}else if ($scope.get('Array')['$===']($case)) {return $rb_plus($rb_plus("React.PropTypes.arrayOf(", self.$generate_prop_type(nil, props['$[]'](0), current_depth, object_cache)), ").isRequired")}else if ($scope.get('Hash')['$===']($case)) {cached_shape = ($a = ($b = object_cache).$cache, $a.$$p = (TMP_1 = function(){var self = TMP_1.$$s || this, prop_type = nil;
+        return (function() {$case = props;if ($scope.get('String')['$===']($case)) {return $rb_plus($scope.get('STRING_PROP_TYPE'), self.is_required)}else if ($scope.get('NilClass')['$===']($case)) {return $scope.get('ANY_PROP_TYPE')}else if ($scope.get('Numeric')['$===']($case)) {return $rb_plus($scope.get('NUMBER_PROP_TYPE'), self.is_required)}else if ($scope.get('TrueClass')['$===']($case) || $scope.get('FalseClass')['$===']($case)) {return $rb_plus($scope.get('BOOL_PROP_TYPE'), self.is_required)}else if ($scope.get('Array')['$===']($case)) {return $rb_plus($rb_plus($rb_plus("React.PropTypes.arrayOf(", self.$generate_prop_type(nil, props['$[]'](0), current_depth, object_cache)), ")"), self.is_required)}else if ($scope.get('Hash')['$===']($case)) {cached_shape = ($a = ($b = object_cache).$cache, $a.$$p = (TMP_1 = function(){var self = TMP_1.$$s || this, prop_type = nil;
           if (self.semicolon == null) self.semicolon = nil;
 
         prop_type = self.$hash_to_prop_type(props, current_depth, object_cache);
           return (($scope.get('PropTypes')).$$scope.get('CachedShape')).$new(nil, prop_type, props, $hash2(["semicolon"], {"semicolon": self.semicolon}));}, TMP_1.$$s = self, TMP_1), $a).call($b, props);
         (($a = key_name !== false && key_name !== nil) ? cached_shape.$offer_name("" + (key_name) + "Shape") : key_name);
         cached_shape.$increment();
-        return $rb_plus(cached_shape.$id(), ".isRequired");}else {return self.$raise("Can't generate prop for " + (props) + " (" + (props.$class()) + ")")}})();
+        return $rb_plus(cached_shape.$id(), self.is_required);}else {return self.$raise("Can't generate prop for " + (props) + " (" + (props.$class()) + ")")}})();
       });
 
       Opal.defn(self, '$hash_to_prop_type', function(props, current_depth, object_cache) {

@@ -59,7 +59,12 @@
         <label class="third-block">
           <input type="checkbox" id="dangle_commas" onchange="FormState.renderOutput()"> Add dangling commas
         </label>
-        <button onclick="FormState.showDemo()" class="third-block">Demo</button>
+        <label class="third-block">
+          <input type="checkbox" id="required" onchange="FormState.renderOutput()"> Use .isRequired
+        </label>
+        <div class="whole-block">
+          <button onclick="FormState.showDemo()"> Show a Demo</button>
+        </div>
       <div class="half-block">
         <textarea id="input" onkeyup="FormState.renderOutput()" class="code-input" rows="30" placeholder="Paste some JSON here"></textarea>
       </div>
@@ -85,6 +90,7 @@
             ]
           }, undefined, 2),
           alphabetize: true,
+          required: true,
         },
 
         // Persist the state in the URL hash
@@ -101,6 +107,7 @@
             semicolons: this._readStateSetting("semicolons"),
             alphabetize: this._readStateSetting("alphabetize"),
             dangle_commas: this._readStateSetting("dangle_commas"),
+            required: this._readStateSetting("required"),
           }
         },
 
@@ -112,6 +119,7 @@
           this._renderStateSetting(state, "semicolons")
           this._renderStateSetting(state, "alphabetize")
           this._renderStateSetting(state, "dangle_commas")
+          this._renderStateSetting(state, "required")
         },
 
         // Fetch settingName from state and apply it to a same-named checkbox
@@ -143,6 +151,7 @@
                 semicolons: state.semicolons,
                 alphabetize: state.alphabetize,
                 dangle_commas: state.dangle_commas,
+                required: state.required,
               })
             )
             this.saveState(state)
