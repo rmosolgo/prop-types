@@ -196,4 +196,53 @@ shape({
 
     assert_equal expected, generate_prop_types(example_hash, semicolons: true, function_wrapper: true, destructure: true)
   end
+
+  def test_it_preserves_original_order_if_requested
+    example_hash = {
+      grandparents: [
+        {name: "George", age: 72},
+        {name: "Lucille", age: 68},
+      ],
+      members: [
+        {name: "Michael", age: 45},
+        {name: "George Michael", age: 17},
+      ]
+    }
+
+
+      expected = %|var {arrayOf, number, shape, string} = React.PropTypes
+
+var agenameShape = shape({
+  name: string.isRequired,
+  age: number.isRequired
+})
+
+shape({
+  grandparents: arrayOf(agenameShape.isRequired).isRequired,
+  members: arrayOf(agenameShape.isRequired).isRequired
+}).isRequired|
+    assert_equal expected, generate_prop_types(example_hash, alphabetize: false, destructure: true)
+  end
+
+  def test_it_adds_dangling_commas_if_requested
+    example_hash = {
+      name: "Hall and Oates",
+      hall: {name: "Daryl Hall"},
+      oates: {name: "Johnny Oates"},
+      band: [{name: "Daryl Hall"}, {name: "Johnny Oates"}]
+    }
+
+    expected = %|var hallShape = React.PropTypes.shape({
+  name: React.PropTypes.string.isRequired,
+})
+
+React.PropTypes.shape({
+  band: React.PropTypes.arrayOf(hallShape.isRequired).isRequired,
+  hall: hallShape.isRequired,
+  name: React.PropTypes.string.isRequired,
+  oates: hallShape.isRequired,
+}).isRequired|
+
+    assert_equal expected, generate_prop_types(example_hash, dangle_commas: true)
+  end
 end

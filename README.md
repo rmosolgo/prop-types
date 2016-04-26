@@ -14,10 +14,26 @@ With some limitations:
 
 ### Development
 
-```
-cd web && python -m SimpleHTTPServer
-```
+- Run the tests:
 
-```
-rake deploy
-```
+  ```
+  rake test
+  ```
+
+- Rebuild the Javascript:
+
+  ```
+  rake compile_js
+  ```
+
+- Start a preview HTTP server:
+
+  ```
+  cd web && python -m SimpleHTTPServer
+  ```
+
+- Push to Github pages:
+
+  ```
+  rake deploy
+  ```

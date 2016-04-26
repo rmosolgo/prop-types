@@ -1,9 +1,17 @@
 module PropTypes
   class Generator
-    def initialize(example_props, function_wrapper: false, destructure: false, semicolons: false)
+    def initialize(example_props, function_wrapper: false, destructure: false, semicolons: false, alphabetize: true, dangle_commas: false)
       @example_props = example_props
       @function_wrapper = function_wrapper
       @destructure = destructure
+      @alphabetize = alphabetize
+
+      if dangle_commas
+        @dangling_comma = ","
+      else
+        @dangling_comma = ""
+      end
+
       if semicolons
         @semicolon = ";"
       else
@@ -87,7 +95,7 @@ module PropTypes
     def hash_to_prop_type(props, current_depth, object_cache)
       own_indent = PropTypes::Indent.create(current_depth - 1)
       next_indent = PropTypes::Indent.create(current_depth)
-      keys = props.keys.sort
+      keys = apply_sort(props.keys)
 
       "React.PropTypes.shape({" +
         keys.map { |key|
@@ -95,7 +103,16 @@ module PropTypes
           "#{key}: " +
           generate_prop_type(key, props[key], current_depth + 1, object_cache)
         }.join(",") +
+        @dangling_comma +
       own_indent + "})"
+    end
+
+    def apply_sort(strings)
+      if @alphabetize
+        strings.sort
+      else
+        strings
+      end
     end
   end
 end
